@@ -198,6 +198,28 @@ class BirthDayViewController: UIViewController {
             }
         }
 
+        do {
+            let dateString = "\(year)-\(month)-\(day)"
+            let df = DateFormatter()
+            df.dateFormat = "yyyy-MM-dd"
+            guard let inputDate = df.date(from: dateString) else {
+                throw BirthDayError.notDate
+            }
+            let today = Date()
+            guard let dDay = Calendar.current.dateComponents([.day], from: today, to: inputDate).day else { return }
+            resultLabel.text = dDay == 0 ? "DDay" : "D\( dDay > 0 ? "+" : "")\(dDay)"
+
+        } catch {
+            if error as? BirthDayError == BirthDayError.notDate {
+				showAlert(message: "Date 형식이 아닙니다")
+                resetTextField(yearTextField)
+                resetTextField(monthTextField)
+                resetTextField(dayTextField)
+                resultLabel.text = "Date 형식이 아닙니다"
+            }
+        }
+
+
     }
 
     private func isVaildValue(_ text: String, maxValue: Int, minValue: Int, textField: UITextField) throws(BirthDayError) {
@@ -221,17 +243,17 @@ class BirthDayViewController: UIViewController {
 
     private func messageHandling(message: String, textField: UITextField, result: Bool = false) {
         if !result {
-            showAlert(message: message, textField: textField)
+            showAlert(message: message)
+            resetTextField(textField)
         }
         resultLabel.text = message
     }
 
-    private func showAlert(message: String, textField: UITextField) {
+    private func showAlert(message: String) {
         let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "확인", style: .default)
         alert.addAction(action)
 
-        resetTextField(textField)
         present(alert, animated: true)
     }
 

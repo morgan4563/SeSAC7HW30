@@ -13,4 +13,5 @@ enum BirthDayError: Error {
     case unvalidYear
     case unvalidMonth
     case unvalidDay
+    case notDate
 }
