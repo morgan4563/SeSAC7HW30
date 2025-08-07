@@ -135,45 +135,72 @@ class BirthDayViewController: UIViewController {
             print("년 텍스트필드 nil")
             return
         }
-
         guard let month = monthTextField.text else {
             print("달 텍스트필드 nil")
             return
         }
-
         guard let day = dayTextField.text else {
             print("일 텍스트필드 nil")
             return
         }
 
-        let maxYear = 2025
-        let minYear = 1
-
-        let maxMonth = 12
-        let minMonth = 1
-
-        let maxDay = 31
-        let minDay = 1
-
         do {
-            try isVaildValue(year ,maxValue: maxYear, minValue: minYear)
+            try isVaildValue(year ,maxValue: 2025, minValue: 1, textField: yearTextField)
         } catch {
             switch error {
-            case .emptyString
-                messageHandling(message: "입력값이 없습니다", textField: textField)
+            case .emptyString:
+                messageHandling(message: "년도 입력값이 없습니다", textField: yearTextField)
+                return
             case .isNotNumber:
-                messageHandling(message: "입력값이 숫자가 아닙니다", textField: textField)
+                messageHandling(message: "년도 입력값이 숫자가 아닙니다", textField: yearTextField)
+                return
             case .unvalidYear:
-                messageHandling(message: "유효한 년도가 아닙니다", textField: textField)
-            case .unvalidMonth:
-                messageHandling(message: "유효한 달이 아닙니다", textField: textField)
-            case .unvalidDay:
-                <#code#>
+                messageHandling(message: "유효한 년도가 아닙니다", textField: yearTextField)
+                return
+            default:
+                return
             }
         }
+
+        do {
+    		try isVaildValue(month, maxValue: 12, minValue: 1, textField: monthTextField)
+        } catch {
+            switch error {
+            case .emptyString:
+                messageHandling(message: "월 입력값이 없습니다", textField: monthTextField)
+                return
+            case .isNotNumber:
+                messageHandling(message: "월 입력값이 숫자가 아닙니다", textField: monthTextField)
+                return
+            case .unvalidMonth:
+                messageHandling(message: "유효한 달이 아닙니다", textField: monthTextField)
+                return
+            default:
+                return
+            }
+        }
+
+        do {
+			try isVaildValue(day, maxValue: 31, minValue: 1, textField: dayTextField)
+        } catch {
+            switch error {
+            case .emptyString:
+                messageHandling(message: "일 입력값이 없습니다", textField: dayTextField)
+                return
+            case .isNotNumber:
+                messageHandling(message: "일 입력값이 숫자가 아닙니다", textField: dayTextField)
+                return
+            case .unvalidDay:
+                messageHandling(message: "유효한 일이 아닙니다", textField: dayTextField)
+                return
+            default:
+                return
+            }
+        }
+
     }
 
-    private func isVaildValue(_ text: String, maxValue: Int, minValue: Int) throws(BirthDayError) {
+    private func isVaildValue(_ text: String, maxValue: Int, minValue: Int, textField: UITextField) throws(BirthDayError) {
 
         guard !text.isEmpty else {
             throw .emptyString
@@ -181,8 +208,14 @@ class BirthDayViewController: UIViewController {
         guard let value = Int(text) else {
             throw .isNotNumber
         }
-        guard value <= maxValue || value >= minValue else {
-            throw .unvalidYear
+        guard value <= maxValue && value >= minValue else {
+            if textField == yearTextField {
+                throw .unvalidYear
+            } else if textField == monthTextField {
+                throw .unvalidMonth
+            } else {
+                throw .unvalidDay
+            }
         }
     }
 
