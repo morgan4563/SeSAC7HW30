@@ -16,8 +16,7 @@ final class AgeViewModel {
             inputChanged()
         }
     }
-
-    //TODO: outputChagned 중복호출 방지 처리 필요
+    
     var outputText = "" {
         didSet {
             print("outputChanged")
@@ -25,32 +24,24 @@ final class AgeViewModel {
         }
     }
 
-    var outputIsValid = false {
-        didSet {
-            print("outputIsValid")
-            outputChanged?()
-        }
-    }
+    var outputIsValid = false
 
     func inputChanged() {
         do {
             try isVaildAge(inputText)
-            outputText = "적절한 입력값입니다"
             outputIsValid = true
+            outputText = "적절한 입력값입니다"
         } catch {
+            outputIsValid = false
             switch error {
             case .emptyString:
                 outputText = "입력값이 없습니다"
-                outputIsValid = false
             case .isNotNumber:
                 outputText = "입력값이 숫자가 아닙니다"
-                outputIsValid = false
             case .oneHundredOver:
                 outputText = "입력값이 100 초과입니다"
-                outputIsValid = false
             case .oneUnder:
                 outputText = "입력값이 1 미만입니다"
-                outputIsValid = false
             }
         }
     }
