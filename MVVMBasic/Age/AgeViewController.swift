@@ -8,6 +8,8 @@
 import UIKit
 
 final class AgeViewController: UIViewController {
+	let viewModel = AgeViewModel()
+
     let textField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "나이를 입력해주세요"
@@ -35,6 +37,11 @@ final class AgeViewController: UIViewController {
         configureLayout()
         
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
+
+        viewModel.outputChanged = {
+            self.label.text = self.viewModel.outputText
+            self.messageHandling(message: self.viewModel.outputText, result: self.viewModel.outputIsValid)
+        }
     }
     
     func configureHierarchy() {
@@ -70,49 +77,13 @@ final class AgeViewController: UIViewController {
     @objc func resultButtonTapped() {
         view.endEditing(true)
 
-        guard let text = textField.text else {
-            print("텍스트 필드 글자 nil")
-            return
-        }
-
-        do {
-            try isVaildAge(text)
-            messageHandling(message: "적절한 입력값입니다", result: true)
-        } catch {
-            switch error {
-            case .emptyString:
-                messageHandling(message: "입력값이 없습니다")
-            case .isNotNumber:
-                messageHandling(message: "입력값이 숫자가 아닙니다")
-            case .oneHundredOver:
-                messageHandling(message: "입력값이 100 초과입니다")
-            case .oneUnder:
-                messageHandling(message: "입력값이 1 미만입니다")
-            }
-        }
-    }
-
-    private func isVaildAge(_ text: String) throws(AgeError) {
-
-        guard !text.isEmpty else {
-            throw AgeError.emptyString
-        }
-        guard let ageInt = Int(text) else {
-            throw AgeError.isNotNumber
-        }
-        guard ageInt <= 100 else {
-            throw AgeError.oneHundredOver
-        }
-        guard ageInt >= 1 else {
-            throw AgeError.oneUnder
-        }
+        viewModel.inputText = textField.text ?? ""
     }
 
     private func messageHandling(message: String, result: Bool = false) {
         if !result {
             showAlert(message: message)
         }
-        label.text = message
     }
 
     private func showAlert(message: String) {
