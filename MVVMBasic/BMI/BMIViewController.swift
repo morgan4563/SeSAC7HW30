@@ -8,6 +8,8 @@
 import UIKit
 
 class BMIViewController: UIViewController {
+	private let viewModel = BMIViewModel()
+
     let heightTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "키를 입력해주세요"
@@ -40,6 +42,14 @@ class BMIViewController: UIViewController {
         configureLayout()
         
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
+
+        viewModel.outputChanged = {
+            self.resultLabel.text = self.viewModel.outputText
+
+            if !self.viewModel.isValidValue {
+                self.messageHandling(message: self.viewModel.outputText)
+            }
+        }
     }
     
     func configureHierarchy() {
@@ -82,56 +92,13 @@ class BMIViewController: UIViewController {
     @objc func resultButtonTapped() {
         view.endEditing(true)
 
-        guard let height = heightTextField.text else {
-            print("키 텍스트필드 nil")
-            return
-        }
+        viewModel.inputHeightText = heightTextField.text ?? ""
+        viewModel.inputWeightText = weightTextField.text ?? ""
 
-        guard let weight = weightTextField.text else {
-            print("몸무게 텍스트필드 nil")
-            return
-        }
-
-        let maxValue = 200
-        let minValue = 30
-
-        do {
-            let doubleTypeHeight = try isVaildValue(height ,maxValue: maxValue, minValue: minValue)
-            let doubleTypeWeight = try isVaildValue(weight, maxValue: maxValue, minValue: minValue)
-
-            let bmi = calcBMI(weight: doubleTypeWeight, height: doubleTypeHeight * 0.01)
-            messageHandling(message: bmi, result: true)
-        } catch {
-            switch error {
-            case .emptyString:
-                messageHandling(message: "입력값이 없습니다")
-            case .isNotNumber:
-                messageHandling(message: "입력값이 숫자가 아닙니다")
-            case .maxValueOver:
-                messageHandling(message: "입력값이 \(maxValue) 초과입니다")
-            case .minValueUnder:
-                messageHandling(message: "입력값이 \(minValue) 미만입니다")
-            }
-        }
+        viewModel.resultButtonTapped = 0
     }
 
-    private func isVaildValue(_ text: String, maxValue: Int, minValue: Int) throws(BMIError) -> Double {
 
-        guard !text.isEmpty else {
-            throw BMIError.emptyString
-        }
-        guard let value = Int(text) else {
-            throw BMIError.isNotNumber
-        }
-        guard value <= maxValue else {
-            throw BMIError.maxValueOver
-        }
-        guard value >= minValue else {
-            throw BMIError.minValueUnder
-        }
-
-        return Double(value)
-    }
 
     private func messageHandling(message: String, result: Bool = false) {
         if !result {
@@ -154,17 +121,4 @@ class BMIViewController: UIViewController {
         textField.text = ""
     }
 
-    private func calcBMI(weight: Double, height: Double) -> String {
-        let bmi = weight / (height * height)
-        var result: String
-        if bmi < 18.5 {
-			result = "저체중"
-        } else if bmi < 24.9 {
-            result = "정상체중"
-        } else {
-            result = "과체중"
-        }
-
-        return "BMI: \(String(format: "%.2f", bmi)), \(result) 입니다"
-    }
 }
