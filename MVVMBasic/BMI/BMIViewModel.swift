@@ -13,7 +13,7 @@ final class BMIViewModel {
 
     var resultButtonTapped = 0 {
         didSet {
-            makeHeightOutput()
+            makeOutputText()
         }
     }
 
@@ -28,7 +28,7 @@ final class BMIViewModel {
         }
     }
 
-    func makeHeightOutput() {
+    func makeOutputText() {
         let maxValue = 200
         let minValue = 30
 

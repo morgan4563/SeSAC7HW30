@@ -9,6 +9,8 @@ import UIKit
 import SnapKit
 
 class BirthDayViewController: UIViewController {
+	let viewModel = BirthDayViewModel()
+
     let yearTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "년도를 입력해주세요"
@@ -62,6 +64,14 @@ class BirthDayViewController: UIViewController {
         configureLayout()
         
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
+
+        viewModel.outputChanged = {
+            if self.viewModel.isValidValue {
+                self.resultLabel.text = self.viewModel.outputText
+            } else {
+                self.showAlert(message: self.viewModel.outputText)
+            }
+        }
     }
     
     func configureHierarchy() {
@@ -131,122 +141,11 @@ class BirthDayViewController: UIViewController {
     @objc func resultButtonTapped() {
         view.endEditing(true)
 
-        guard let year = yearTextField.text else {
-            print("년 텍스트필드 nil")
-            return
-        }
-        guard let month = monthTextField.text else {
-            print("달 텍스트필드 nil")
-            return
-        }
-        guard let day = dayTextField.text else {
-            print("일 텍스트필드 nil")
-            return
-        }
+        viewModel.inputYearText = yearTextField.text ?? ""
+        viewModel.inputMonthText = monthTextField.text ?? ""
+        viewModel.inputDayText = dayTextField.text ?? ""
 
-        do {
-            try isVaildValue(year ,maxValue: 2025, minValue: 1, textField: yearTextField)
-        } catch {
-            switch error {
-            case .emptyString:
-                messageHandling(message: "년도 입력값이 없습니다", textField: yearTextField)
-                return
-            case .isNotNumber:
-                messageHandling(message: "년도 입력값이 숫자가 아닙니다", textField: yearTextField)
-                return
-            case .unvalidYear:
-                messageHandling(message: "유효한 년도가 아닙니다", textField: yearTextField)
-                return
-            default:
-                return
-            }
-        }
-
-        do {
-    		try isVaildValue(month, maxValue: 12, minValue: 1, textField: monthTextField)
-        } catch {
-            switch error {
-            case .emptyString:
-                messageHandling(message: "월 입력값이 없습니다", textField: monthTextField)
-                return
-            case .isNotNumber:
-                messageHandling(message: "월 입력값이 숫자가 아닙니다", textField: monthTextField)
-                return
-            case .unvalidMonth:
-                messageHandling(message: "유효한 달이 아닙니다", textField: monthTextField)
-                return
-            default:
-                return
-            }
-        }
-
-        do {
-			try isVaildValue(day, maxValue: 31, minValue: 1, textField: dayTextField)
-        } catch {
-            switch error {
-            case .emptyString:
-                messageHandling(message: "일 입력값이 없습니다", textField: dayTextField)
-                return
-            case .isNotNumber:
-                messageHandling(message: "일 입력값이 숫자가 아닙니다", textField: dayTextField)
-                return
-            case .unvalidDay:
-                messageHandling(message: "유효한 일이 아닙니다", textField: dayTextField)
-                return
-            default:
-                return
-            }
-        }
-
-        do {
-            let dateString = "\(year)-\(month)-\(day)"
-            let df = DateFormatter()
-            df.dateFormat = "yyyy-MM-dd"
-            guard let inputDate = df.date(from: dateString) else {
-                throw BirthDayError.notDate
-            }
-            let today = Date()
-            guard let dDay = Calendar.current.dateComponents([.day], from: today, to: inputDate).day else { return }
-            resultLabel.text = dDay == 0 ? "DDay" : "D\( dDay > 0 ? "+" : "")\(dDay)"
-
-        } catch {
-            if error as? BirthDayError == BirthDayError.notDate {
-				showAlert(message: "Date 형식이 아닙니다")
-                resetTextField(yearTextField)
-                resetTextField(monthTextField)
-                resetTextField(dayTextField)
-                resultLabel.text = "Date 형식이 아닙니다"
-            }
-        }
-
-
-    }
-
-    private func isVaildValue(_ text: String, maxValue: Int, minValue: Int, textField: UITextField) throws(BirthDayError) {
-
-        guard !text.isEmpty else {
-            throw .emptyString
-        }
-        guard let value = Int(text) else {
-            throw .isNotNumber
-        }
-        guard value <= maxValue && value >= minValue else {
-            if textField == yearTextField {
-                throw .unvalidYear
-            } else if textField == monthTextField {
-                throw .unvalidMonth
-            } else {
-                throw .unvalidDay
-            }
-        }
-    }
-
-    private func messageHandling(message: String, textField: UITextField, result: Bool = false) {
-        if !result {
-            showAlert(message: message)
-            resetTextField(textField)
-        }
-        resultLabel.text = message
+        viewModel.resultButtonTapped = 0
     }
 
     private func showAlert(message: String) {
