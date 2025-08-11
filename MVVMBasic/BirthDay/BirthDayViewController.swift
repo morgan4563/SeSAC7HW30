@@ -137,7 +137,9 @@ class BirthDayViewController: UIViewController {
                 self.monthTextField.text = ""
                 self.dayTextField.text = ""
 
-//                self.showAlert(message: self.viewModel.outputText.value)
+                DispatchQueue.main.async {
+                    self.showAlert(message: self.viewModel.outputText.value)
+                }
             }
         }
     }
@@ -155,11 +157,11 @@ class BirthDayViewController: UIViewController {
         viewModel.resultButtonTapped.value = 0
     }
 
-//    private func showAlert(message: String) {
-//        let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
-//        let action = UIAlertAction(title: "확인", style: .default)
-//        alert.addAction(action)
-//
-//        present(alert, animated: true)
-//    }
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "확인", style: .default)
+        alert.addAction(action)
+
+        present(alert, animated: true)
+    }
 }

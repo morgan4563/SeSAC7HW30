@@ -7,32 +7,27 @@
 
 import Foundation
 
-class CurrencyViewModel {
-    var outputChanged: (() -> Void)?
+final class CurrencyViewModel {
 
-    var inputText = "" {
-        didSet {
-            print("convertButtonTapped")
-            convertCurrency()
-        }
-    }
+    var convertButtonTapped = Observable(())
+    var inputText = Observable("")
+    var outputText = Observable("")
 
-    var outputText = "" {
-        didSet {
-            print("outputText")
-            outputChanged?()
+    init() {
+        convertButtonTapped.bind { _ in
+            self.convertCurrency()
         }
     }
 
     private func convertCurrency() {
-        guard let amount = Double(inputText) else {
-            outputText = "올바른 금액을 입력해주세요"
+        guard let amount = Double(inputText.value) else {
+            outputText.value = "올바른 금액을 입력해주세요"
             return
         }
 
         let exchangeRate = 1350.0
 
         let convertedAmount = amount / exchangeRate
-        outputText = String(format: "%.2f USD (약 $%.2f)", convertedAmount, convertedAmount)
+        outputText.value = String(format: "%.2f USD (약 $%.2f)", convertedAmount, convertedAmount)
     }
 }
