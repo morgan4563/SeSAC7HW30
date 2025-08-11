@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 
+//TODO: MVVM으로 구현
 class ProfileSettingViewController: UIViewController {
 
     let profileButton: UIButton = {

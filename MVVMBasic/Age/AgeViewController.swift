@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 final class AgeViewController: UIViewController {
 	let viewModel = AgeViewModel()
@@ -35,13 +36,10 @@ final class AgeViewController: UIViewController {
         super.viewDidLoad()
         configureHierarchy()
         configureLayout()
-        
+        binding()
+
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
 
-        viewModel.outputChanged = {
-            self.label.text = self.viewModel.outputText
-            self.messageHandling(message: self.viewModel.outputText, result: self.viewModel.outputIsValid)
-        }
     }
     
     func configureHierarchy() {
@@ -69,7 +67,19 @@ final class AgeViewController: UIViewController {
             make.height.equalTo(44)
         }
     }
-    
+
+    func binding() {
+        viewModel.outputText.bind { text in
+            self.label.text = text
+        }
+
+        viewModel.outputIsValid.bind { isValid in
+            if !isValid {
+                self.messageHandling(message: self.viewModel.outputText.value)
+            }
+        }
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
@@ -77,7 +87,7 @@ final class AgeViewController: UIViewController {
     @objc func resultButtonTapped() {
         view.endEditing(true)
 
-        viewModel.inputText = textField.text ?? ""
+        viewModel.inputText.value = textField.text ?? ""
     }
 
     private func messageHandling(message: String, result: Bool = false) {

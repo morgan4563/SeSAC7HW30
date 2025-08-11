@@ -8,41 +8,38 @@
 import Foundation
 
 final class AgeViewModel {
-    var outputChanged: (() -> Void)?
+	var inputText = Observable("")
+    var outputText = Observable("")
+	var outputIsValid = Observable(false)
 
-    var inputText = "" {
-        didSet {
-            print("inputText")
-            inputChanged()
-        }
-    }
-    
-    var outputText = "" {
-        didSet {
-            print("outputChanged")
-            outputChanged?()
+    init() {
+        inputText.bind { _ in
+            self.inputChanged()
         }
     }
 
-    var outputIsValid = false
-
-    func inputChanged() {
+    private func inputChanged() {
         do {
-            try isVaildAge(inputText)
-            outputIsValid = true
-            outputText = "적절한 입력값입니다"
+            try isVaildAge(inputText.value)
+            outputText.value = "적절한 입력값입니다"
+            outputIsValid.value = true
+
         } catch {
-            outputIsValid = false
             switch error {
             case .emptyString:
-                outputText = "입력값이 없습니다"
+                outputText.value = "입력값이 없습니다"
+                break
             case .isNotNumber:
-                outputText = "입력값이 숫자가 아닙니다"
+                outputText.value = "입력값이 숫자가 아닙니다"
+                break
             case .oneHundredOver:
-                outputText = "입력값이 100 초과입니다"
+                outputText.value = "입력값이 100 초과입니다"
+                break
             case .oneUnder:
-                outputText = "입력값이 1 미만입니다"
+                outputText.value = "입력값이 1 미만입니다"
+                break
             }
+            outputIsValid.value = false
         }
     }
 
