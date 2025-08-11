@@ -9,49 +9,42 @@ import Foundation
 
 final class BMIViewModel {
 
-    var outputChanged: (() -> Void)?
+    var resultButtonTapped = Observable(0)
+    var inputHeightText = Observable("")
+    var inputWeightText = Observable("")
+    var isValidValue = Observable(true)
+    var outputText = Observable("")
 
-    var resultButtonTapped = 0 {
-        didSet {
-            makeOutputText()
+    init() {
+        resultButtonTapped.bind { _ in
+            self.makeOutputText()
         }
     }
 
-    var inputHeightText = ""
-    var inputWeightText = ""
-    var isValidValue = false
-
-    var outputText = "" {
-        didSet {
-            print("outputHeightText")
-            outputChanged?()
-        }
-    }
-
-    func makeOutputText() {
+    private func makeOutputText() {
         let maxValue = 200
         let minValue = 30
 
         do {
-            let validHeight = try isVaildValue(inputHeightText ,maxValue: maxValue, minValue: minValue)
-            let validWeight = try isVaildValue(inputWeightText, maxValue: maxValue, minValue: minValue)
+            let validHeight = try isVaildValue(inputHeightText.value ,maxValue: maxValue, minValue: minValue)
+            let validWeight = try isVaildValue(inputWeightText.value, maxValue: maxValue, minValue: minValue)
             let bmi = calcBMI(weight: validWeight, height: validHeight * 0.01)
-			isValidValue = true
-            outputText = bmi
+            outputText.value = bmi
+            isValidValue.value = true
         } catch {
             switch error {
             case .emptyString:
-                isValidValue = false
-                outputText = "입력값이 없습니다"
+                outputText.value = "입력값이 없습니다"
+                isValidValue.value = false
             case .isNotNumber:
-                isValidValue = false
-                outputText = "입력값이 숫자가 아닙니다"
+                outputText.value = "입력값이 숫자가 아닙니다"
+                isValidValue.value = false
             case .maxValueOver:
-                isValidValue = false
-                outputText = "입력값이 \(maxValue) 초과입니다"
+                outputText.value = "입력값이 \(maxValue) 초과입니다"
+                isValidValue.value = false
             case .minValueUnder:
-                isValidValue = false
-                outputText = "입력값이 \(minValue) 미만입니다"
+                outputText.value = "입력값이 \(minValue) 미만입니다"
+                isValidValue.value = false
             }
         }
     }

@@ -9,23 +9,23 @@ import UIKit
 import SnapKit
 
 final class AgeViewController: UIViewController {
-	let viewModel = AgeViewModel()
+	private let viewModel = AgeViewModel()
 
-    let textField: UITextField = {
+    private let textField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "나이를 입력해주세요"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .numberPad
         return textField
     }()
-    let resultButton: UIButton = {
+    private let resultButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .systemBlue
         button.setTitle( "클릭", for: .normal)
         button.layer.cornerRadius = 8
         return button
     }()
-    let label: UILabel = {
+    private let label: UILabel = {
         let label = UILabel()
         label.text = "여기에 결과를 보여주세요"
         label.textAlignment = .center
@@ -39,16 +39,15 @@ final class AgeViewController: UIViewController {
         binding()
 
         resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
-
     }
     
-    func configureHierarchy() {
+    private func configureHierarchy() {
         view.addSubview(textField)
         view.addSubview(resultButton)
         view.addSubview(label)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         textField.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.horizontalEdges.equalToSuperview().inset(20)
@@ -68,7 +67,7 @@ final class AgeViewController: UIViewController {
         }
     }
 
-    func binding() {
+    private func binding() {
         viewModel.outputText.bind { text in
             self.label.text = text
         }
@@ -84,7 +83,7 @@ final class AgeViewController: UIViewController {
         view.endEditing(true)
     }
     
-    @objc func resultButtonTapped() {
+    @objc private func resultButtonTapped() {
         view.endEditing(true)
 
         viewModel.inputText.value = textField.text ?? ""
