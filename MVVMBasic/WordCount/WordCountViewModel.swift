@@ -8,23 +8,17 @@
 import Foundation
 
 class WordCountViewModel {
-    var outputChanged: (() -> Void)?
+    var inputText = Observable("")
 
-    var inputText = "" {
-        didSet {
-            print("inputText")
-			makeOutputText()
-        }
-    }
+    var outputText = Observable("현재까지 0글자 작성중")
 
-    var outputText = "현재까지 0글자 작성중" {
-        didSet {
-            print("outputText")
-            outputChanged?()
+    init() {
+        inputText.bind { _ in
+            self.makeOutputText()
         }
     }
 
     private func makeOutputText() {
-        outputText = "현재까지 \(inputText.count)글자 작성중"
+        outputText.value = "현재까지 \(inputText.value.count)글자 작성중"
     }
 }
