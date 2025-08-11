@@ -8,7 +8,6 @@
 import Foundation
 
 final class BMIViewModel {
-
     var resultButtonTapped = Observable(0)
     var inputHeightText = Observable("")
     var inputWeightText = Observable("")

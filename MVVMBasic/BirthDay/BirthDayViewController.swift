@@ -8,50 +8,51 @@
 import UIKit
 import SnapKit
 
+//TODO: Alert 에러 해결 필요
 class BirthDayViewController: UIViewController {
-	let viewModel = BirthDayViewModel()
+	private let viewModel = BirthDayViewModel()
 
-    let yearTextField: UITextField = {
+    private let yearTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "년도를 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let yearLabel: UILabel = {
+    private let yearLabel: UILabel = {
         let label = UILabel()
         label.text = "년"
         return label
     }()
-    let monthTextField: UITextField = {
+    private let monthTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "월을 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let monthLabel: UILabel = {
+    private let monthLabel: UILabel = {
         let label = UILabel()
         label.text = "월"
         return label
     }()
-    let dayTextField: UITextField = {
+    private let dayTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "일을 입력해주세요"
         textField.borderStyle = .roundedRect
         return textField
     }()
-    let dayLabel: UILabel = {
+    private let dayLabel: UILabel = {
         let label = UILabel()
         label.text = "일"
         return label
     }()
-    let resultButton: UIButton = {
+    private let resultButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .systemBlue
         button.setTitle( "클릭", for: .normal)
         button.layer.cornerRadius = 8
         return button
     }()
-    let resultLabel: UILabel = {
+    private let resultLabel: UILabel = {
         let label = UILabel()
         label.text = "여기에 결과를 보여주세요"
         label.textAlignment = .center
@@ -62,19 +63,12 @@ class BirthDayViewController: UIViewController {
         super.viewDidLoad()
         configureHierarchy()
         configureLayout()
-        
-        resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
+        binding()
 
-        viewModel.outputChanged = {
-            if self.viewModel.isValidValue {
-                self.resultLabel.text = self.viewModel.outputText
-            } else {
-                self.showAlert(message: self.viewModel.outputText)
-            }
-        }
+        resultButton.addTarget(self, action: #selector(resultButtonTapped), for: .touchUpInside)
     }
     
-    func configureHierarchy() {
+    private func configureHierarchy() {
         view.addSubview(yearTextField)
         view.addSubview(yearLabel)
         view.addSubview(monthTextField)
@@ -85,7 +79,7 @@ class BirthDayViewController: UIViewController {
         view.addSubview(resultLabel)
     }
     
-    func configureLayout() {
+    private func configureLayout() {
         yearTextField.snp.makeConstraints { make in
             make.top.leading.equalTo(view.safeAreaLayoutGuide).offset(20)
             make.width.equalTo(200)
@@ -133,30 +127,39 @@ class BirthDayViewController: UIViewController {
             make.height.equalTo(44)
         }
     }
-    
+
+    private func binding() {
+        viewModel.isValidValue.bind { [weak self] isValid in
+            guard let self else { return }
+            self.resultLabel.text = viewModel.outputText.value
+            if !isValid {
+                self.yearTextField.text = ""
+                self.monthTextField.text = ""
+                self.dayTextField.text = ""
+
+//                self.showAlert(message: self.viewModel.outputText.value)
+            }
+        }
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
     
-    @objc func resultButtonTapped() {
+    @objc private  func resultButtonTapped() {
         view.endEditing(true)
 
-        viewModel.inputYearText = yearTextField.text ?? ""
-        viewModel.inputMonthText = monthTextField.text ?? ""
-        viewModel.inputDayText = dayTextField.text ?? ""
-
-        viewModel.resultButtonTapped = 0
+        viewModel.inputYearText.value = yearTextField.text ?? ""
+        viewModel.inputMonthText.value = monthTextField.text ?? ""
+        viewModel.inputDayText.value = dayTextField.text ?? ""
+        viewModel.resultButtonTapped.value = 0
     }
 
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "확인", style: .default)
-        alert.addAction(action)
-
-        present(alert, animated: true)
-    }
-
-    private func resetTextField(_ textField: UITextField) {
-        textField.text = ""
-    }
+//    private func showAlert(message: String) {
+//        let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
+//        let action = UIAlertAction(title: "확인", style: .default)
+//        alert.addAction(action)
+//
+//        present(alert, animated: true)
+//    }
 }

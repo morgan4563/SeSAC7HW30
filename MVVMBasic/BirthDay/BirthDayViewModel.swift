@@ -8,39 +8,37 @@
 import Foundation
 
 final class BirthDayViewModel {
-    var outputChanged: (() -> Void)?
 
-    var resultButtonTapped = 0 {
-        didSet {
-			makeOutputText()
-        }
-    }
+    var resultButtonTapped = Observable(0)
+    var inputYearText = Observable("")
+    var inputMonthText = Observable("")
+    var inputDayText = Observable("")
+    var isValidValue = Observable(false)
+    var outputText = Observable("")
 
-    var inputYearText = ""
-    var inputMonthText = ""
-    var inputDayText = ""
-    var isValidValue = false
-
-    var outputText = "" {
-        didSet {
-            print("outputText")
-            outputChanged?()
+    init() {
+        resultButtonTapped.bind { [weak self] _ in
+            guard let self else { return }
+            self.makeOutputText()
         }
     }
 
     private func makeOutputText() {
         do {
-            try checkDateInput(inputYearText ,maxValue: 2025, minValue: 1)
+            try checkDateInput(inputYearText.value ,maxValue: 2025, minValue: 1)
         } catch {
             switch error {
             case .emptyString:
-                outputText = "년도 입력값이 없습니다"
+                outputText.value = "년도 입력값이 없습니다"
+                isValidValue.value = false
                 return
             case .isNotNumber:
-                outputText = "년도 입력값이 숫자가 아닙니다"
+                outputText.value = "년도 입력값이 숫자가 아닙니다"
+                isValidValue.value = false
                 return
             case .unvalidYear:
-                outputText = "유효한 년도가 아닙니다"
+                outputText.value = "유효한 년도가 아닙니다"
+                isValidValue.value = false
                 return
             default:
                 return
@@ -48,17 +46,20 @@ final class BirthDayViewModel {
         }
 
         do {
-            try checkDateInput(inputMonthText, maxValue: 12, minValue: 1)
+            try checkDateInput(inputMonthText.value, maxValue: 12, minValue: 1)
         } catch {
             switch error {
             case .emptyString:
-                outputText = "월 입력값이 없습니다"
+                outputText.value = "월 입력값이 없습니다"
+                isValidValue.value = false
                 return
             case .isNotNumber:
-                outputText = "월 입력값이 숫자가 아닙니다"
+                outputText.value = "월 입력값이 숫자가 아닙니다"
+                isValidValue.value = false
                 return
             case .unvalidMonth:
-                outputText = "유효한 달이 아닙니다"
+                outputText.value = "유효한 달이 아닙니다"
+                isValidValue.value = false
                 return
             default:
                 return
@@ -66,17 +67,20 @@ final class BirthDayViewModel {
         }
 
         do {
-            try checkDateInput(inputDayText, maxValue: 31, minValue: 1)
+            try checkDateInput(inputDayText.value, maxValue: 31, minValue: 1)
         } catch {
             switch error {
             case .emptyString:
-                outputText = "일 입력값이 없습니다"
+                outputText.value = "일 입력값이 없습니다"
+                isValidValue.value = false
                 return
             case .isNotNumber:
-                outputText = "일 입력값이 숫자가 아닙니다"
+                outputText.value = "일 입력값이 숫자가 아닙니다"
+                isValidValue.value = false
                 return
             case .unvalidDay:
-                outputText = "유효한 일이 아닙니다"
+                outputText.value = "유효한 일이 아닙니다"
+                isValidValue.value = false
                 return
             default:
                 return
@@ -84,7 +88,8 @@ final class BirthDayViewModel {
         }
 
         do {
-            let dateString = "\(inputYearText)-\(inputMonthText)-\(inputDayText)"
+            print("dd")
+            let dateString = "\(inputYearText.value)-\(inputMonthText.value)-\(inputDayText.value)"
             let df = DateFormatter()
             df.dateFormat = "yyyy-MM-dd"
             guard let inputDate = df.date(from: dateString) else {
@@ -92,12 +97,12 @@ final class BirthDayViewModel {
             }
             let today = Date()
             guard let dDay = Calendar.current.dateComponents([.day], from: today, to: inputDate).day else { return }
-            outputText = dDay == 0 ? "DDay" : "D\( dDay > 0 ? "+" : "")\(dDay)"
-            isValidValue = true
+            outputText.value = dDay == 0 ? "DDay" : "D\( dDay > 0 ? "+" : "")\(dDay)"
+            isValidValue.value = true
         } catch {
             if error as? BirthDayError == BirthDayError.notDate {
-                isValidValue = false
-                outputText = "Date 형식이 아닙니다"
+                outputText.value = "Date 형식이 아닙니다"
+                isValidValue.value = false
             }
         }
     }
@@ -105,23 +110,23 @@ final class BirthDayViewModel {
     private func checkDateInput(_ text: String, maxValue: Int, minValue: Int) throws(BirthDayError) {
 
         guard !text.isEmpty else {
-            isValidValue = false
+            isValidValue.value = false
             throw .emptyString
         }
         guard let value = Int(text) else {
-            isValidValue = false
+            isValidValue.value = false
             throw .isNotNumber
         }
         guard value <= maxValue && value >= minValue else {
-            isValidValue = false
-            if text == inputYearText {
+            isValidValue.value = false
+            if text == inputYearText.value {
                 throw .unvalidYear
-            } else if text == inputMonthText {
+            } else if text == inputMonthText.value {
                 throw .unvalidMonth
             } else {
                 throw .unvalidDay
             }
         }
-        isValidValue = true
+        isValidValue.value = true
     }
 }
