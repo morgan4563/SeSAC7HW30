@@ -10,7 +10,7 @@ import MapKit
 import SnapKit
 
 class MapViewController: UIViewController {
-     
+    private let viewModel = MapViewModel()
     private let mapView = MKMapView()
      
     override func viewDidLoad() {
@@ -18,6 +18,7 @@ class MapViewController: UIViewController {
         setupUI()
         setupMapView()
         addSeoulStationAnnotation()
+        addAllAnnotation()
     }
      
     private func setupUI() {
@@ -59,7 +60,18 @@ class MapViewController: UIViewController {
         annotation.subtitle = "대한민국 서울특별시"
         mapView.addAnnotation(annotation)
     }
-     
+
+    private func addAllAnnotation() {
+        let restaurantList = RestaurantList.restaurantArray
+        restaurantList.forEach {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude)
+            annotation.title = $0.name
+            annotation.subtitle = $0.address
+            mapView.addAnnotation(annotation)
+        }
+    }
+
     @objc private func rightBarButtonTapped() {
         let alertController = UIAlertController(
             title: "메뉴 선택",
@@ -67,20 +79,23 @@ class MapViewController: UIViewController {
             preferredStyle: .actionSheet
         )
         
-        let alert1Action = UIAlertAction(title: "얼럿 1", style: .default) { _ in
-            print("얼럿 1이 선택되었습니다.")
+        let alert1Action = UIAlertAction(title: "한식", style: .default) { _ in
+            print("한식이 선택되었습니다")
+            self.showCategoryAnnotation(category: "한식")
         }
         
-        let alert2Action = UIAlertAction(title: "얼럿 2", style: .default) { _ in
-            print("얼럿 2가 선택되었습니다.")
+        let alert2Action = UIAlertAction(title: "양식", style: .default) { _ in
+            print("양식이 선택되었습니다")
+            self.showCategoryAnnotation(category: "양식")
         }
         
-        let alert3Action = UIAlertAction(title: "얼럿 3", style: .default) { _ in
-            print("얼럿 3이 선택되었습니다.")
+        let alert3Action = UIAlertAction(title: "중식", style: .default) { _ in
+            print("중식이 선택되었습니다")
+            self.showCategoryAnnotation(category: "중식")
         }
         
         let cancelAction = UIAlertAction(title: "취소", style: .cancel) { _ in
-            print("취소가 선택되었습니다.")
+            print("취소가 선택되었습니다")
         }
         
         alertController.addAction(alert1Action)
@@ -89,6 +104,23 @@ class MapViewController: UIViewController {
         alertController.addAction(cancelAction)
          
         present(alertController, animated: true, completion: nil)
+    }
+
+    func showCategoryAnnotation(category: String) {
+        mapView.annotations.forEach {
+            mapView.removeAnnotation($0)
+        }
+
+        let filtedAnnotations = RestaurantList.restaurantArray.filter {
+            $0.category == category
+        }
+        filtedAnnotations.forEach {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude)
+            annotation.title = $0.name
+            annotation.subtitle = $0.address
+            mapView.addAnnotation(annotation)
+        }
     }
 }
  

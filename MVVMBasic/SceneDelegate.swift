@@ -29,11 +29,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let currencyVC = CurrencyViewController()
         currencyVC.tabBarItem = UITabBarItem(title: "환전", image: UIImage(systemName: "dollarsign"), tag: 4)
 
+        let mapVC = MapViewController()
+        mapVC.tabBarItem = UITabBarItem(title: "지도", image: UIImage(systemName: "map"), tag: 5)
+
         let onboardingVC = OnboardingViewController()
         let onboardingNav = UINavigationController(rootViewController: onboardingVC)
-        onboardingNav.tabBarItem = UITabBarItem(title: "온보딩", image: UIImage(systemName: "person.fill"), tag: 5)
+        onboardingNav.tabBarItem = UITabBarItem(title: "온보딩", image: UIImage(systemName: "person.fill"), tag: 6)
 
-        tabBarController.viewControllers = [ageVC, bmiVC, birthDayVC, wordCountVC, currencyVC, onboardingNav]
+        tabBarController.viewControllers = [ageVC, bmiVC, birthDayVC, wordCountVC, currencyVC, mapVC, onboardingNav]
         tabBarController.tabBar.tintColor = .systemBlue
         tabBarController.tabBar.unselectedItemTintColor = .systemGray
         
